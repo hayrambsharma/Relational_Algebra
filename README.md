@@ -1,4 +1,4 @@
-# Relational Algebra in C++
+# Relational Algebra
 
 ## Overview
 
