@@ -28,7 +28,7 @@ public:
     map<string, int> att_map;
 };
 
-string remove_brackets(string s){
+string remove_brackets(string& s){
     int i = 0, j = s.size() - 1;
     while(s[i] == '(' && s[j] == ')') i++, j--;
     string t;
@@ -101,7 +101,7 @@ relation project(string query, relation table){
 }
 
 relation select(string query, relation table){
-    if(!success) return *new relation();
+    if(!success) return *new relation;
     auto p = postfix(query);
     stack<pair<relation, vector<string>>> s;
     for(auto i : p){
@@ -427,7 +427,7 @@ relation process(string query){
         success = false;
     }
     if(find(table_list.begin(), table_list.end(), str) == table_list.end()){
-        cout << "ERROR: Table does not exist\n";
+        cout << "ERROR: Table " << str << " does not exist\n";
         success = false;
     }
     else{
