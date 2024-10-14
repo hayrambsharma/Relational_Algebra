@@ -1,15 +1,18 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-vector<string> operator + (vector<string> a, vector<string> b){
-    for(auto s : b) a.push_back(s);
-    return a;
+vector<string> operator + (vector<string>& a, vector<string>& b){
+    auto v = a;
+    for(auto s : b) v.push_back(s);
+    return v;
 }
 
-string toupper(string s){
-    string t;
-    for(auto c : s) t.push_back(toupper(c));
-    return t;
+void toupper(string& s){
+    for(auto &c : s) c = toupper(c);
+}
+
+bool is_integer(string& s){
+    return all_of(s.begin() + int(s[0] == '-'), s.end(), ::isdigit);
 }
 
 map<string, int> precedence{ {"|", 0}, {"^", 1}, {"!", 2}, {"=", 2}, {">", 3}, {"<", 3}, {"+", 4}, {"-", 4}, {"*", 5}, {"/", 5}, {"%", 5}};
@@ -23,16 +26,6 @@ public:
     vector<string> att_list;
     map<string, int> att_map;
 };
-
-int to_int(string s){
-    int n = 0;
-    for(auto c : s){
-        if(c < '0' || c > '9') return -1;
-        n *= 10;
-        n += (c - '0');
-    }
-    return n;
-}
 
 string strip(string s){
     string t;
@@ -144,7 +137,7 @@ relation select(string query, relation table){
             auto v2 = s.top().second; s.pop();
             auto [r, v] = s.top(); s.pop();
             for(int it = 0; it < v.size(); it++){
-                if(to_int(v[it]) == -1 || to_int(v2[it]) == -1){
+                if(!is_integer(v[it]) || !is_integer(v2[it])){
                     cout << "ERROR : Incorrect data type, cannot perform arithmetic operation\n";
                     success = false;
                     return r;
@@ -152,19 +145,19 @@ relation select(string query, relation table){
             }
             if(i == "+")
                 for(int it = 0; it < v.size(); it++)
-                    v[it] = to_string(to_int(v[it]) + to_int(v2[it]));
+                    v[it] = to_string(stoll(v[it]) + stoll(v2[it]));
             else if(i == "-")
                 for(int it = 0; it < v.size(); it++)
-                    v[it] = to_string(to_int(v[it]) - to_int(v2[it]));
+                    v[it] = to_string(stoll(v[it]) - stoll(v2[it]));
             else if(i == "*")
                 for(int it = 0; it < v.size(); it++)
-                    v[it] = to_string(to_int(v[it]) * to_int(v2[it]));
+                    v[it] = to_string(stoll(v[it]) * stoll(v2[it]));
             else if(i == "/")
                 for(int it = 0; it < v.size(); it++)
-                    v[it] = to_string(to_int(v[it]) / to_int(v2[it]));
+                    v[it] = to_string(stoll(v[it]) / stoll(v2[it]));
             else if(i == "%")
                 for(int it = 0; it < v.size(); it++)
-                    v[it] = to_string(to_int(v[it]) % to_int(v2[it]));
+                    v[it] = to_string(stoll(v[it]) % stoll(v2[it]));
             s.emplace(r, v);
             continue;
         }
@@ -176,7 +169,7 @@ relation select(string query, relation table){
             int j = 0;
             bool is_int = true;
             for(int it = 0; it < v1.size(); it++){
-                if(to_int(v1[it]) == -1 || to_int(v2[it]) == -1){
+                if(!is_integer(v1[it]) || !is_integer(v2[it])){
                     is_int = false; break;
                 }
             }
@@ -195,7 +188,7 @@ relation select(string query, relation table){
             else if(i == ">"){
                 for(auto it : r1.records){
                     if(is_int){
-                        if(to_int(v1[j]) > to_int(v2[j])) r.records.insert(it);
+                        if(stoll(v1[j]) > stoll(v2[j])) r.records.insert(it);
                     }
                     else if(v1[j] > v2[j]) r.records.insert(it);
                     j++;
@@ -204,7 +197,7 @@ relation select(string query, relation table){
             else if(i == ">="){
                 for(auto it : r1.records){
                     if(is_int){
-                        if(to_int(v1[j]) >= to_int(v2[j])) r.records.insert(it);
+                        if(stoll(v1[j]) >= stoll(v2[j])) r.records.insert(it);
                     }
                     else if(v1[j] >= v2[j]) r.records.insert(it);
                     j++;
@@ -213,7 +206,7 @@ relation select(string query, relation table){
             else if(i == "<"){
                 for(auto it : r1.records){
                     if(is_int){
-                        if(to_int(v1[j]) < to_int(v2[j])) r.records.insert(it);
+                        if(stoll(v1[j]) < stoll(v2[j])) r.records.insert(it);
                     }
                     else if(v1[j] < v2[j]) r.records.insert(it);
                     j++;
@@ -222,7 +215,7 @@ relation select(string query, relation table){
             else if(i == "<="){
                 for(auto it : r1.records){
                     if(is_int){
-                        if(to_int(v1[j]) <= to_int(v2[j])) r.records.insert(it);
+                        if(stoll(v1[j]) <= stoll(v2[j])) r.records.insert(it);
                     }
                     else if(v1[j] <= v2[j]) r.records.insert(it);
                     j++;
@@ -483,7 +476,7 @@ int main(){
     while(true){
         cout << ">> ";
         getline(cin, query);
-        query = toupper(query);
+        toupper(query);
         if(query == "EXIT") break;
         if(query.empty()) continue;
         success = true;
