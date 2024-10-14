@@ -8,6 +8,7 @@ vector<string> operator + (vector<string>& a, vector<string>& b){
 }
 
 void toupper(string& s){
+    s.erase(remove(s.begin(), s.end(), ' '), s.end());
     for(auto &c : s) c = toupper(c);
 }
 
@@ -27,15 +28,6 @@ public:
     map<string, int> att_map;
 };
 
-string strip(string s){
-    string t;
-    int i = 0, j = s.size() - 1;
-    while(s[i] == ' ') i++;
-    while(s[j] == ' ') j--;
-    for(int k = i; k <= j; k++) t.push_back(s[k]);
-    return t;
-}
-
 string remove_brackets(string s){
     int i = 0, j = s.size() - 1;
     while(s[i] == '(' && s[j] == ')') i++, j--;
@@ -48,7 +40,7 @@ vector<string> split(string s, char delim){
     vector<string> res;
     stringstream ss(s);
     string temp;
-    while(getline(ss, temp, delim)) res.push_back(strip(temp));
+    while(getline(ss, temp, delim)) res.push_back(temp);
     return res;
 }
 
@@ -245,11 +237,11 @@ relation rename(string query, relation table){
     }
     if(query.find("(") == string::npos && query.find(")") == string::npos){
         out = table;
-        out.name = strip(query);
+        out.name = query;
         return out;
     }
     int st = query.find("("), en = query.find(")");
-    out.name = st ? strip(query.substr(0, st)) : table.name;
+    out.name = st ? query.substr(0, st) : table.name;
     query = query.substr(st + 1, en - st - 1);
     out.att_list = split(query, ',');
     if(out.att_list.size() != table.att_list.size()){
@@ -359,7 +351,7 @@ public:
             }
             string arg = query.substr(st + 1, en - st - 1);
             s.emplace(query[0], arg);
-            query = strip(query.substr(en + 1, query.size() - en - 1));
+            query = query.substr(en + 1, query.size() - en - 1);
             query = remove_brackets(query);
         }
         relation out = table;
@@ -440,7 +432,6 @@ relation process(string query){
     }
     else{
         Table T(str);
-        query = strip(query);
         out = T.parse(remove_brackets(query));
     }
     return out;
