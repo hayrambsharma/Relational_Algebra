@@ -251,8 +251,7 @@ relation rename(string query, relation table){
     }
     out.records = table.records;
     int att_no = 0;
-    for(auto att : out.att_list)
-        out.att_map[att] = att_no++;
+    for(auto att : out.att_list) out.att_map[att] = att_no++;
     return out;
 }
 
@@ -307,8 +306,7 @@ relation cartesian(relation t1, relation t2){
         s1.insert(atts);
         out.att_list.push_back(s2.count(atts) ? t1.name + "." + atts : atts);
     }
-    for(auto atts : t2.att_list)
-        out.att_list.push_back(s1.count(atts) ? t2.name + "." + atts : atts);
+    for(auto atts : t2.att_list) out.att_list.push_back(s1.count(atts) ? t2.name + "." + atts : atts);
     int att_no = 0;
     for(auto att : out.att_list) out.att_map[att] = att_no++;
     for(auto x : t1.records)
