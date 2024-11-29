@@ -20,7 +20,7 @@ map<string, int> precedence{ {"|", 0}, {"^", 1}, {"!", 2}, {"=", 2}, {">", 3}, {
 bool success = true;
 vector<string> table_list = {"STUDENT", "COURSE", "ENROLLMENT", "PROFESSOR", "DEPARTMENT"};
 
-class relation{
+class Relation{
 public:
     string name;
     set<vector<string>> records;
@@ -76,9 +76,9 @@ vector<string> postfix(string query){
     return pf;
 }
 
-relation project(string query, relation table){
+Relation project(string query, Relation table){
     if(query == "*") return table;
-    relation out;
+    Relation out;
     if(!success) return out;
     out.name = table.name;
     out.att_list = split(query, ',');
@@ -100,13 +100,13 @@ relation project(string query, relation table){
     return out;
 }
 
-relation select(string query, relation table){
-    if(!success) return *new relation;
+Relation select(string query, Relation table){
+    if(!success) return *new Relation;
     auto p = postfix(query);
-    stack<pair<relation, vector<string>>> s;
+    stack<pair<Relation, vector<string>>> s;
     for(auto i : p){
         if(!precedence.count(string(1, i[0]))){
-            relation r = table;
+            Relation r = table;
             vector<string> v;
             if(i[0] == '\'' && i.back() == '\''){
                 i.erase(i.begin());
@@ -156,7 +156,7 @@ relation select(string query, relation table){
         if(precedence[string(1, i[0])] >= 2){
             auto v2 = s.top().second; s.pop();
             auto [r1, v1] = s.top(); s.pop();
-            relation r = r1;
+            Relation r = r1;
             r.records.clear();
             int j = 0;
             bool is_int = true;
@@ -227,9 +227,9 @@ relation select(string query, relation table){
     return s.top().first;
 }
 
-relation rename(string query, relation table){
+Relation rename(string query, Relation table){
     if(!success) return table;
-    relation out;
+    Relation out;
     if((query.find("(") == string::npos && query.find(")") != string::npos) || (query.find("(") != string::npos && query.find(")") == string::npos)){
         cout << "ERROR : Invalid query\n";
         success = false;
@@ -255,8 +255,8 @@ relation rename(string query, relation table){
     return out;
 }
 
-relation Union(relation t1, relation t2){
-    relation out;
+Relation Union(Relation t1, Relation t2){
+    Relation out;
     if(!success) return out;
     if(t1.att_list != t2.att_list){
         cout << "ERROR : Tables are not union compatible\n";
@@ -269,8 +269,8 @@ relation Union(relation t1, relation t2){
     return out;
 }
 
-relation set_diff(relation t1, relation t2){
-    relation out;
+Relation set_diff(Relation t1, Relation t2){
+    Relation out;
     if(!success) return out;
     if(t1.att_list != t2.att_list){
         cout << "ERROR : Tables are not union compatible\n";
@@ -284,15 +284,15 @@ relation set_diff(relation t1, relation t2){
     return out;
 }
 
-relation intersect(relation t1, relation t2){
+Relation intersect(Relation t1, Relation t2){
     if(!success) return t1;
-    relation out = set_diff(set_diff(Union(t1, t2), set_diff(t1, t2)), set_diff(t2, t1));
+    Relation out = set_diff(set_diff(Union(t1, t2), set_diff(t1, t2)), set_diff(t2, t1));
     out.name = t1.name + " \u2229 " + t2.name;
     return out;
 }
 
-relation cartesian(relation t1, relation t2){
-    relation out;
+Relation cartesian(Relation t1, Relation t2){
+    Relation out;
     if(!success) return out;
     if(t1.name == t2.name){
         cout << "ERROR : The tables must be different\n";
@@ -314,10 +314,10 @@ relation cartesian(relation t1, relation t2){
     return out;
 }
 
-relation process(string query);
+Relation process(string query);
 
 class Table{
-    relation table;
+    Relation table;
 public:
     Table(string name){
         table.name = name;
@@ -337,7 +337,7 @@ public:
         while(getline(f, line)) table.records.insert(split(line, ','));
     }
 
-    relation parse(string query){
+    Relation parse(string query){
         stack<pair<char, string>> s;
         while(query != table.name){
             int st = query.find("[");
@@ -352,7 +352,7 @@ public:
             query = query.substr(en + 1, query.size() - en - 1);
             query = remove_brackets(query);
         }
-        relation out = table;
+        Relation out = table;
         while(!s.empty()){
             auto [op, arg] = s.top();
             s.pop();
@@ -388,7 +388,7 @@ public:
     }
 };
 
-relation process(string query){
+Relation process(string query){
     string temp = query;
     bool flag = false;
     int k = 0;
@@ -419,7 +419,7 @@ relation process(string query){
         }
     }
     if(str.empty()) flag = true;
-    relation out;
+    Relation out;
     if(flag){
         cout<<"ERROR: Invalid query\n";
         success = false;
@@ -435,7 +435,7 @@ relation process(string query){
     return out;
 }
 
-ostream& operator << (ostream& os, relation& out){
+ostream& operator << (ostream& os, Relation& out){
     cout << '\n' << out.name << '\n';
     vector <int> sz(out.att_list.size(), 0);
     int w = 0;
@@ -469,7 +469,7 @@ int main(){
         if(query == "EXIT") break;
         if(query.empty()) continue;
         success = true;
-        relation out = process(query);
+        Relation out = process(query);
         if(success) cout << out << '\n';
     }
     return 0;
